@@ -13,12 +13,14 @@ def cli():
     pass
 
 @cli.command(help="Register a new user")
-@click.argument('username')
-@click.argument('email')
-@click.argument('password')
-def register(username, email, password):
+def register():
     with SessionFactory() as session:
         auth_service = AuthService(session)
+
+        username = click.prompt("Enter Username")
+        email = click.prompt("Enter Email")
+        password = click.prompt("Enter Password", hide_input=True, confirmation_prompt=True)
+
         try:
             user = auth_service.register_user(username, email, password)
             click.echo(f"User {user.username} registered successfully.")
@@ -38,6 +40,15 @@ def login():
             click.echo(f"User {user.username} logged in successfully.")
         else:
             click.echo("Invalid username or password.")
+
+@cli.command(help="List all users")
+def list_users():
+    with SessionFactory() as session:
+        auth_service = AuthService(session)
+        users = auth_service.get_all_users()
+
+        table = [[user.id, user.username, user.email] for user in users]
+        click.echo(tabulate(table, headers=["ID", "Username", "Email"], tablefmt="grid"))
 
 @cli.command(help="Add a new expense")
 def add_expense():
