@@ -2,6 +2,8 @@ from models.user import User
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from werkzeug.security import generate_password_hash, check_password_hash
+from tabulate import tabulate
+
 
 class AuthService:
     def __init__(self, db_session: Session):

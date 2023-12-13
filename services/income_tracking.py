@@ -1,6 +1,8 @@
 from models.income import Income
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
+from tabulate import tabulate
+
 
 class IncomeService:
     def __init__(self, db_session: Session):
