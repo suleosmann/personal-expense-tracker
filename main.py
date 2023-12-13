@@ -26,11 +26,13 @@ def register(username, email, password):
             click.echo(f"Error registering user: {e}")
 
 @cli.command(help="Login a user")
-@click.argument('username')
-@click.argument('password')
-def login(username, password):
+def login():
     with SessionFactory() as session:
         auth_service = AuthService(session)
+
+        username = click.prompt("Enter Username")
+        password = click.prompt("Enter Password", hide_input=True)
+
         user = auth_service.login_user(username, password)
         if user:
             click.echo(f"User {user.username} logged in successfully.")
@@ -38,13 +40,15 @@ def login(username, password):
             click.echo("Invalid username or password.")
 
 @cli.command(help="Add a new expense")
-@click.argument('user_id', type=int)
-@click.argument('amount', type=float)
-@click.argument('description')
-@click.argument('date', type=click.DateTime(formats=["%Y-%m-%d"]))
-def add_expense(user_id, amount, description, date):
+def add_expense():
     with SessionFactory() as session:
         expense_service = ExpenseService(session)
+
+        user_id = click.prompt("Enter User ID", type=int)
+        amount = click.prompt("Enter Amount", type=float)
+        description = click.prompt("Enter Description")
+        date = click.prompt("Enter Date (YYYY-MM-DD)", type=click.DateTime(formats=["%Y-%m-%d"]))
+
         expense = expense_service.add_expense(user_id, amount, description, date)
         click.echo(f"Added expense: {expense.description} of amount {expense.amount} on {expense.date}")
 
@@ -54,18 +58,19 @@ def list_expenses(user_id):
     with SessionFactory() as session:
         expense_service = ExpenseService(session)
         expenses = expense_service.get_expenses(user_id)
-        # Format and display the expenses in a table
         table = [[expense.date, expense.description, f"${expense.amount}"] for expense in expenses]
         click.echo(tabulate(table, headers=["Date", "Description", "Amount"], tablefmt="grid"))
 
 @cli.command(help="Add a new income")
-@click.argument('user_id', type=int)
-@click.argument('amount', type=float)
-@click.argument('source')
-@click.argument('date', type=click.DateTime(formats=["%Y-%m-%d"]))
-def add_income(user_id, amount, source, date):
+def add_income():
     with SessionFactory() as session:
         income_service = IncomeService(session)
+
+        user_id = click.prompt("Enter User ID", type=int)
+        amount = click.prompt("Enter Amount", type=float)
+        source = click.prompt("Enter Source")
+        date = click.prompt("Enter Date (YYYY-MM-DD)", type=click.DateTime(formats=["%Y-%m-%d"]))
+
         income = income_service.add_income(user_id, amount, source, date)
         click.echo(f"Added income: {income.source} of amount {income.amount} on {income.date}")
 
@@ -75,7 +80,6 @@ def list_incomes(user_id):
     with SessionFactory() as session:
         income_service = IncomeService(session)
         incomes = income_service.get_incomes(user_id)
-        # Format and display the incomes in a table
         table = [[income.date, income.source, f"${income.amount}"] for income in incomes]
         click.echo(tabulate(table, headers=["Date", "Source", "Amount"], tablefmt="grid"))
 
