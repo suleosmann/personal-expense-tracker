@@ -1,3 +1,4 @@
+from datetime import datetime
 import click
 from sqlalchemy.exc import SQLAlchemyError
 from database import SessionFactory
@@ -71,13 +72,21 @@ def add_expense():
         user_id = click.prompt("Enter User ID", type=int)
         amount = click.prompt("Enter Amount", type=float)
         description = click.prompt("Enter Description")
-        date = click.prompt("Enter Date (YYYY-MM-DD)", type=str)
+
+        date_str = click.prompt("Enter Date (YYYY-MM-DD)", type=str)
+        try:
+            # Convert the string date to a datetime.date object
+            date_obj = datetime.strptime(date_str, "%Y-%m-%d").date()
+        except ValueError:
+            click.echo("Invalid date format. Please use YYYY-MM-DD.")
+            return
 
         try:
-            expense = expense_service.add_expense(user_id, amount, description, date)
+            expense = expense_service.add_expense(user_id, amount, description, date_obj)
             click.echo(f"Added expense: {expense.description} of amount {expense.amount} on {expense.date}")
         except SQLAlchemyError as e:
             click.echo(f"Error adding expense: {e}")
+
 
 @cli.command(help="List all expenses for a user")
 @click.argument('user_id', type=int)
